@@ -1,0 +1,64 @@
+[
+  {
+    "feature": "preview",
+    "caption": "The preview lists six dates with their categories and text.",
+    "note": "Start here.md",
+    "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); p.settings.folder='RedNotebook preview'; const m=p.openImport(b); await new Promise((r)=>setTimeout(r,50)); m.contentEl.scrollTop=0; return '6 dates in the preview';})()",
+    "zoom": 0.85,
+    "wait": 900,
+    "after": "app.plugins.plugins['rednotebook-backup-import'].closeImportWindows(); app.plugins.plugins['rednotebook-backup-import'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "note",
+    "caption": "The imported note has a heading, emphasis, a link and its categories.",
+    "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); if(!app.vault.getFileByPath('RedNotebook demo/2026-01-01.md')) await p.importPlan(p.prepare(b,'RedNotebook demo'),{keepSources:true}); await app.workspace.getLeaf(false).openFile(app.vault.getFileByPath('RedNotebook demo/2026-01-01.md'),{state:{mode:'preview'}}); return 'converted note with categories';})()",
+    "zoom": 0.85,
+    "wait": 900,
+    "after": "app.plugins.plugins['rednotebook-backup-import'].closeImportWindows(); app.plugins.plugins['rednotebook-backup-import'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "reports",
+    "caption": "The reports list markup kept as text and an image path that was not copied.",
+    "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); p.settings.folder='RedNotebook preview'; const m=p.openImport(b); await new Promise((r)=>setTimeout(r,50)); m.contentEl.querySelectorAll('.rednotebook-preview details').forEach((el)=>{el.open=true;}); m.contentEl.scrollTop=m.contentEl.scrollHeight; return 'markup reports and image paths';})()",
+    "zoom": 0.85,
+    "wait": 900,
+    "after": "app.plugins.plugins['rednotebook-backup-import'].closeImportWindows(); app.plugins.plugins['rednotebook-backup-import'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "rules",
+    "caption": "Saved rules copy category values into note properties.",
+    "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); let token='gho_'+'0'.repeat(36); p.pro.opts.tokens.get=()=>token; p.pro.opts.tokens.set=(v)=>{token=v;}; p.pro.opts.tokens.clear=()=>{token=null;}; p.pro.opts.http=async()=>({status:200,json:{data:{viewer:{login:'demo-reader',totalSponsorshipAmountAsSponsorInCents:1500},user:{viewerIsSponsoring:true,sponsorshipForViewerAsSponsor:{isActive:true,isOneTimePayment:false,tier:{name:'$5 a month',monthlyPriceInCents:500}}}}}}); await p.pro.refreshNow(); await p.saveRules([{category:'Places',property:'place'},{category:'Mood',property:'mood'},{category:'Tags',property:'tags'}]); p.settings.folder='RedNotebook preview'; const m=p.openImport(b); await new Promise((r)=>setTimeout(r,50)); m.contentEl.querySelector('.rednotebook-rules').open=true; m.contentEl.querySelector('.rednotebook-rules').scrollIntoView(); return 'saved category mapping rules';})()",
+    "zoom": 0.85,
+    "wait": 900,
+    "after": "app.plugins.plugins['rednotebook-backup-import'].closeImportWindows(); app.plugins.plugins['rednotebook-backup-import'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "merge",
+    "caption": "A selected date is added to an existing daily note under a RedNotebook heading.",
+    "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); let token='gho_'+'0'.repeat(36); p.pro.opts.tokens.get=()=>token; p.pro.opts.tokens.set=(v)=>{token=v;}; p.pro.opts.tokens.clear=()=>{token=null;}; p.pro.opts.http=async()=>({status:200,json:{data:{viewer:{login:'demo-reader',totalSponsorshipAmountAsSponsorInCents:1500},user:{viewerIsSponsoring:true,sponsorshipForViewerAsSponsor:{isActive:true,isOneTimePayment:false,tier:{name:'$5 a month',monthlyPriceInCents:500}}}}}}); await p.pro.refreshNow(); if(!app.vault.getFolderByPath('Daily demo')) await app.vault.createFolder('Daily demo'); const d=app.vault.getFileByPath('Daily demo/2026-01-02.md') ?? await app.vault.create('Daily demo/2026-01-02.md','# Friday\\n\\nMy own daily note for the trip.\\n'); await p.importPlan(p.prepare(b,'Daily demo'),{keepSources:false,merge:{section:'RedNotebook',dates:['2026-01-02']}}); p.pro.signOut(); await app.workspace.getLeaf(false).openFile(d,{state:{mode:'preview'}}); return 'merged daily-note section';})()",
+    "zoom": 0.85,
+    "wait": 900,
+    "after": "app.plugins.plugins['rednotebook-backup-import'].closeImportWindows(); app.plugins.plugins['rednotebook-backup-import'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "import-flow",
+    "caption": "Preview the backup, read a converted note, then see a merged daily note.",
+    "zoom": 0.85,
+    "frames": [
+      {
+        "note": "Start here.md",
+        "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); p.settings.folder='RedNotebook preview'; const m=p.openImport(b); await new Promise((r)=>setTimeout(r,50)); m.contentEl.scrollTop=0; return '6 dates in the preview';})()",
+        "hold": 1800
+      },
+      {
+        "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); if(!app.vault.getFileByPath('RedNotebook demo/2026-01-01.md')) await p.importPlan(p.prepare(b,'RedNotebook demo'),{keepSources:true}); await app.workspace.getLeaf(false).openFile(app.vault.getFileByPath('RedNotebook demo/2026-01-01.md'),{state:{mode:'preview'}}); return 'converted note with categories';})()",
+        "hold": 1800
+      },
+      {
+        "eval": "(async()=>{const p=app.plugins.plugins['rednotebook-backup-import']; p.closeImportWindows(); p.pro.signOut(); const f=app.vault.getFileByPath('RedNotebook Backup Import/Demo backup.zip'); const b=p.readBackup(new Uint8Array(await app.vault.readBinary(f))); let token='gho_'+'0'.repeat(36); p.pro.opts.tokens.get=()=>token; p.pro.opts.tokens.set=(v)=>{token=v;}; p.pro.opts.tokens.clear=()=>{token=null;}; p.pro.opts.http=async()=>({status:200,json:{data:{viewer:{login:'demo-reader',totalSponsorshipAmountAsSponsorInCents:1500},user:{viewerIsSponsoring:true,sponsorshipForViewerAsSponsor:{isActive:true,isOneTimePayment:false,tier:{name:'$5 a month',monthlyPriceInCents:500}}}}}}); await p.pro.refreshNow(); if(!app.vault.getFolderByPath('Daily demo')) await app.vault.createFolder('Daily demo'); const d=app.vault.getFileByPath('Daily demo/2026-01-02.md') ?? await app.vault.create('Daily demo/2026-01-02.md','# Friday\\n\\nMy own daily note for the trip.\\n'); await p.importPlan(p.prepare(b,'Daily demo'),{keepSources:false,merge:{section:'RedNotebook',dates:['2026-01-02']}}); p.pro.signOut(); await app.workspace.getLeaf(false).openFile(d,{state:{mode:'preview'}}); return 'merged daily-note section';})()",
+        "hold": 1800
+      }
+    ],
+    "after": "app.plugins.plugins['rednotebook-backup-import'].closeImportWindows(); app.plugins.plugins['rednotebook-backup-import'].pro.signOut(); 'ok'"
+  }
+]

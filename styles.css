@@ -1,0 +1,44 @@
+.rednotebook-import-modal {
+  width: min(860px, 95vw);
+}
+
+.rednotebook-import {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.rednotebook-import .setting-item {
+  padding: 10px 0;
+}
+
+.rednotebook-import summary {
+  cursor: pointer;
+  padding: 8px 0;
+  color: var(--text-muted);
+}
+
+.rednotebook-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-ui-small);
+}
+
+.rednotebook-table th, .rednotebook-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--background-modifier-border);
+  overflow-wrap: anywhere;
+}
+
+.rednotebook-counts {
+  color: var(--text-accent);
+  font-weight: var(--font-semibold);
+}
+
+.rednotebook-status {
+  padding: 12px 0;
+}
+
+.rednotebook-picker {
+  max-width: 280px;
+}

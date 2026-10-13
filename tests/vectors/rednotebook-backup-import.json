@@ -1,0 +1,574 @@
+{
+ "slug": "rednotebook-backup-import",
+ "module": "rednotebook-backup-import/src",
+ "function": "parseMonth",
+ "note": "Each case names its export. A thrown error is stored as {error}. tests/vectors.test.ts runs each case.",
+ "cases": [
+  {
+   "name": "acceptance 1: two-day backup gives two dated days",
+   "function": "inspectFiles",
+   "args": [
+    {
+     "2026-01.txt": "1:\n  Places: {Paris: null}\n  text: '= New year ='\n2:\n  text: !!python/unicode '日本語 😀'\n"
+    }
+   ],
+   "expected": {
+    "days": [
+     {
+      "date": "2026-01-01",
+      "text": "= New year =",
+      "categories": [
+       {
+        "name": "Places",
+        "values": [
+         "Paris"
+        ]
+       }
+      ],
+      "source": "2026-01.txt"
+     },
+     {
+      "date": "2026-01-02",
+      "text": "日本語 😀",
+      "categories": [],
+      "source": "2026-01.txt"
+     }
+    ],
+    "sources": [
+     {
+      "path": "2026-01.txt",
+      "month": "2026-01",
+      "text": "1:\n  Places: {Paris: null}\n  text: '= New year ='\n2:\n  text: !!python/unicode '日本語 😀'\n"
+     }
+    ],
+    "conflicts": [],
+    "ignored": [],
+    "empty": []
+   }
+  },
+  {
+   "name": "acceptance 2: category Places keeps value Paris",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "1: {Places: {Paris: null}, text: Hello}\n"
+   ],
+   "expected": [
+    {
+     "date": "2026-01-01",
+     "text": "Hello",
+     "categories": [
+      {
+       "name": "Places",
+       "values": [
+        "Paris"
+       ]
+      }
+     ],
+     "source": "2026-01.txt"
+    }
+   ]
+  },
+  {
+   "name": "acceptance 3: Unicode text stays the same",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "2: {text: \"日本語 😀\"}\n"
+   ],
+   "expected": [
+    {
+     "date": "2026-01-02",
+     "text": "日本語 😀",
+     "categories": [],
+     "source": "2026-01.txt"
+    }
+   ]
+  },
+  {
+   "name": "acceptance 4: basic txt2tags becomes Markdown",
+   "function": "convertTxt2tags",
+   "args": [
+    "= New year =\n**Bold**, //italic//, and [Example https://example.org]."
+   ],
+   "expected": {
+    "markdown": "# New year\n**Bold**, *italic*, and [Example](https://example.org).",
+    "reports": [],
+    "images": []
+   }
+  },
+  {
+   "name": "acceptance 5: python/unicode scalar is text",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "1: {text: !!python/unicode 'Plain text'}\n"
+   ],
+   "expected": [
+    {
+     "date": "2026-01-01",
+     "text": "Plain text",
+     "categories": [],
+     "source": "2026-01.txt"
+    }
+   ]
+  },
+  {
+   "name": "acceptance 6a: python/object/apply is rejected",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "1: {text: !!python/object/apply:os.system ['echo unsafe']}\n"
+   ],
+   "expected": {
+    "error": "2026-01.txt: Invalid YAML. Unresolved tag: tag:yaml.org,2002:python/object/apply:os.system"
+   }
+  },
+  {
+   "name": "acceptance 6b: day 32 is rejected",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "32: {text: Late}\n"
+   ],
+   "expected": {
+    "error": "2026-01.txt: Invalid day 32 for 2026-01."
+   }
+  },
+  {
+   "name": "acceptance 7: two month files for one month are a conflict",
+   "function": "inspectFiles",
+   "args": [
+    {
+     "2026-01.txt": "1: {text: A}\n",
+     "data/2026-01.txt": "1: {text: B}\n",
+     "2026-02.txt": "3: {text: C}\n"
+    }
+   ],
+   "expected": {
+    "days": [
+     {
+      "date": "2026-02-03",
+      "text": "C",
+      "categories": [],
+      "source": "2026-02.txt"
+     }
+    ],
+    "sources": [
+     {
+      "path": "2026-02.txt",
+      "month": "2026-02",
+      "text": "3: {text: C}\n"
+     }
+    ],
+    "conflicts": [
+     "2026-01: 2 source files (2026-01.txt, data/2026-01.txt) map to the same dates. Skipped dates: 2026-01-01."
+    ],
+    "ignored": [],
+    "empty": []
+   }
+  },
+  {
+   "name": "acceptance 8: absent external image stays as text with a report",
+   "function": "convertTxt2tags",
+   "args": [
+    "Look: [\"\"/home/user/Pictures/cat\"\".jpg]"
+   ],
+   "expected": {
+    "markdown": "Look: [\"\"/home/user/Pictures/cat\"\".jpg]",
+    "reports": [
+     "Image not copied: /home/user/Pictures/cat.jpg"
+    ],
+    "images": [
+     "/home/user/Pictures/cat.jpg"
+    ]
+   }
+  },
+  {
+   "name": "acceptance 9a: parent path in the ZIP is rejected",
+   "function": "validateMembers",
+   "args": [
+    [
+     {
+      "name": "2026-01.txt",
+      "size": 10
+     },
+     {
+      "name": "../escape.txt",
+      "size": 5
+     }
+    ]
+   ],
+   "expected": {
+    "error": "The ZIP file has an unsafe path: ../escape.txt"
+   }
+  },
+  {
+   "name": "acceptance 9b: expanded data over 100 MiB is rejected",
+   "function": "validateMembers",
+   "args": [
+    [
+     {
+      "name": "2026-01.txt",
+      "size": 60000000
+     },
+     {
+      "name": "2026-02.txt",
+      "size": 60000000
+     }
+    ]
+   ],
+   "expected": {
+    "error": "The expanded data exceeds 100 MiB."
+   }
+  },
+  {
+   "name": "absolute ZIP path is rejected",
+   "function": "validateMembers",
+   "args": [
+    [
+     {
+      "name": "/etc/2026-01.txt",
+      "size": 1
+     }
+    ]
+   ],
+   "expected": {
+    "error": "The ZIP file has an unsafe path: /etc/2026-01.txt"
+   }
+  },
+  {
+   "name": "duplicate ZIP names are rejected",
+   "function": "validateMembers",
+   "args": [
+    [
+     {
+      "name": "2026-01.txt",
+      "size": 1
+     },
+     {
+      "name": "2026-01.txt",
+      "size": 1
+     }
+    ]
+   ],
+   "expected": {
+    "error": "The ZIP file has a duplicate name: 2026-01.txt"
+   }
+  },
+  {
+   "name": "safe ZIP member list passes",
+   "function": "validateMembers",
+   "args": [
+    [
+     {
+      "name": "data/",
+      "size": 0
+     },
+     {
+      "name": "data/2026-01.txt",
+      "size": 100
+     }
+    ]
+   ],
+   "expected": "ok"
+  },
+  {
+   "name": "February 30 is rejected",
+   "function": "parseMonth",
+   "args": [
+    "2026-02.txt",
+    "30: {text: No}\n"
+   ],
+   "expected": {
+    "error": "2026-02.txt: Invalid day 30 for 2026-02."
+   }
+  },
+  {
+   "name": "leap day 2024-02-29 is accepted",
+   "function": "parseMonth",
+   "args": [
+    "2024-02.txt",
+    "29: {text: Leap}\n"
+   ],
+   "expected": [
+    {
+     "date": "2024-02-29",
+     "text": "Leap",
+     "categories": [],
+     "source": "2024-02.txt"
+    }
+   ]
+  },
+  {
+   "name": "empty day is listed and not imported",
+   "function": "inspectFiles",
+   "args": [
+    {
+     "2026-03.txt": "4: null\n5: {text: Kept}\n"
+    }
+   ],
+   "expected": {
+    "days": [
+     {
+      "date": "2026-03-05",
+      "text": "Kept",
+      "categories": [],
+      "source": "2026-03.txt"
+     }
+    ],
+    "sources": [
+     {
+      "path": "2026-03.txt",
+      "month": "2026-03",
+      "text": "4: null\n5: {text: Kept}\n"
+     }
+    ],
+    "conflicts": [],
+    "ignored": [],
+    "empty": [
+     "2026-03-04"
+    ]
+   }
+  },
+  {
+   "name": "category with several values keeps each value",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "7:\n  Tags: {travel: null, family: null, 2026: null}\n"
+   ],
+   "expected": [
+    {
+     "date": "2026-01-07",
+     "text": "",
+     "categories": [
+      {
+       "name": "Tags",
+       "values": [
+        "travel",
+        "family",
+        "2026"
+       ]
+      }
+     ],
+     "source": "2026-01.txt"
+    }
+   ]
+  },
+  {
+   "name": "second level heading",
+   "function": "convertTxt2tags",
+   "args": [
+    "== Train to Lyon =="
+   ],
+   "expected": {
+    "markdown": "## Train to Lyon",
+    "reports": [],
+    "images": []
+   }
+  },
+  {
+   "name": "numbered heading is converted and reported",
+   "function": "convertTxt2tags",
+   "args": [
+    "+ Plan +"
+   ],
+   "expected": {
+    "markdown": "# Plan",
+    "reports": [
+     "Numbered heading converted without its number"
+    ],
+    "images": []
+   }
+  },
+  {
+   "name": "double slash inside a bare URL is not italic",
+   "function": "convertTxt2tags",
+   "args": [
+    "See https://example.org//path and //this//."
+   ],
+   "expected": {
+    "markdown": "See https://example.org//path and *this*.",
+    "reports": [],
+    "images": []
+   }
+  },
+  {
+   "name": "link with quoted local target",
+   "function": "convertTxt2tags",
+   "args": [
+    "[My file \"\"file:///home/user/a b.txt\"\"]"
+   ],
+   "expected": {
+    "markdown": "[My file](<file:///home/user/a b.txt>)",
+    "reports": [],
+    "images": []
+   }
+  },
+  {
+   "name": "list lines are kept and reported",
+   "function": "convertTxt2tags",
+   "args": [
+    "- one\n- two"
+   ],
+   "expected": {
+    "markdown": "- one\n- two",
+    "reports": [
+     "List line kept as text"
+    ],
+    "images": []
+   }
+  },
+  {
+   "name": "table lines are kept and reported",
+   "function": "convertTxt2tags",
+   "args": [
+    "| Item | Cost |\n| Tea | 4 |"
+   ],
+   "expected": {
+    "markdown": "| Item | Cost |\n| Tea | 4 |",
+    "reports": [
+     "Table line kept as text"
+    ],
+    "images": []
+   }
+  },
+  {
+   "name": "underline and monospace are kept and reported",
+   "function": "convertTxt2tags",
+   "args": [
+    "__under__ and ``code``"
+   ],
+   "expected": {
+    "markdown": "__under__ and ``code``",
+    "reports": [
+     "Monospace markup kept as text",
+     "Underline markup kept as text"
+    ],
+    "images": []
+   }
+  },
+  {
+   "name": "binary tag is rejected",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "1: {text: !!binary aGk=}\n"
+   ],
+   "expected": {
+    "error": "2026-01.txt: The YAML tag tag:yaml.org,2002:binary is not allowed."
+   }
+  },
+  {
+   "name": "YAML alias is rejected",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "1: {text: &a hi}\n2: {text: *a}\n"
+   ],
+   "expected": {
+    "error": "2026-01.txt: YAML aliases are not supported."
+   }
+  },
+  {
+   "name": "duplicate day keys are rejected",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "1: {text: A}\n1: {text: B}\n"
+   ],
+   "expected": {
+    "error": "2026-01.txt: Invalid YAML. Map keys must be unique"
+   }
+  },
+  {
+   "name": "month file must be a map",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "- 1\n- 2\n"
+   ],
+   "expected": {
+    "error": "2026-01.txt: The month file must be a map of day numbers."
+   }
+  },
+  {
+   "name": "day text must be text",
+   "function": "parseMonth",
+   "args": [
+    "2026-01.txt",
+    "1: {text: {a: b}}\n"
+   ],
+   "expected": {
+    "error": "2026-01.txt: The text of day 1 must be text."
+   }
+  },
+  {
+   "name": "other ZIP files are listed and not read",
+   "function": "inspectFiles",
+   "args": [
+    {
+     "2026-01.txt": "1: {text: A}\n",
+     "configuration.cfg": "x",
+     "__MACOSX/._2026-01.txt": "x"
+    }
+   ],
+   "expected": {
+    "days": [
+     {
+      "date": "2026-01-01",
+      "text": "A",
+      "categories": [],
+      "source": "2026-01.txt"
+     }
+    ],
+    "sources": [
+     {
+      "path": "2026-01.txt",
+      "month": "2026-01",
+      "text": "1: {text: A}\n"
+     }
+    ],
+    "conflicts": [],
+    "ignored": [
+     "__MACOSX/._2026-01.txt",
+     "configuration.cfg"
+    ],
+    "empty": []
+   }
+  },
+  {
+   "name": "month 13 is not a month file",
+   "function": "inspectFiles",
+   "args": [
+    {
+     "2026-13.txt": "1: {text: A}\n",
+     "2026-01.txt": "1: {text: B}\n"
+    }
+   ],
+   "expected": {
+    "days": [
+     {
+      "date": "2026-01-01",
+      "text": "B",
+      "categories": [],
+      "source": "2026-01.txt"
+     }
+    ],
+    "sources": [
+     {
+      "path": "2026-01.txt",
+      "month": "2026-01",
+      "text": "1: {text: B}\n"
+     }
+    ],
+    "conflicts": [],
+    "ignored": [
+     "2026-13.txt"
+    ],
+    "empty": []
+   }
+  }
+ ]
+}
