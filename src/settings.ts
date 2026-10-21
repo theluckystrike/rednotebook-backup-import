@@ -3,6 +3,7 @@ import { sponsorsSettingItems } from './license/github-obsidian';
 import { safeFolder, validSection, validateRules, type Rule } from './model';
 import { PRO_UI } from './pro';
 import type RednotebookBackupImportPlugin from './main';
+import { helloSettingItems } from './hello/settings';
 
 export interface RednotebookBackupImportSettings { folder: string; keepSources: boolean; section: string; rules: Rule[] }
 export const DEFAULT_SETTINGS: RednotebookBackupImportSettings = { folder: 'RedNotebook', keepSources: true, section: 'RedNotebook', rules: [] };
@@ -27,6 +28,11 @@ export function normalizeSettings(saved: unknown): RednotebookBackupImportSettin
 export class RednotebookBackupImportSettingTab extends PluginSettingTab {
 	constructor(app: ConstructorParameters<typeof PluginSettingTab>[0], readonly plugin: RednotebookBackupImportPlugin) { super(app, plugin); }
 	getSettingDefinitions(): SettingDefinitionItem[] {
+		// The product rows, then the "More from NoteMods" card (packages/hello).
+		return [...this.productSettingDefinitions(), ...helloSettingItems()];
+	}
+
+	productSettingDefinitions(): SettingDefinitionItem[] {
 		return [
 			{ name: 'Import folder', desc: 'Folder for the dated notes. You can change it in the import window.', control: { type: 'text', key: 'folder', defaultValue: DEFAULT_SETTINGS.folder } },
 			{ name: 'Keep month source files', desc: 'Copy each month file into a source folder inside the import folder.', control: { type: 'toggle', key: 'keepSources', defaultValue: DEFAULT_SETTINGS.keepSources } },

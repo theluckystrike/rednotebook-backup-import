@@ -34,13 +34,13 @@ These txt2tags forms become Markdown:
 
 The preview reports lists, tables, underline, strikethrough, monospace, raw and tagged text, comment lines and verbatim blocks. Their source markers stay in the Markdown file. Obsidian can render some of these markers as Markdown. Numbered headings become plain headings without their number, and the report names that change.
 
-Image markup such as `[""/home/user/Pictures/cat"".jpg]` stays as text. The report and a note callout say that the image file was not copied. The plugin reads month files only. It does not copy image files from the ZIP or from your device.
+Image markup such as `[""/home/user/Pictures/cat"".jpg]` stays as text. The report and a note callout say that the image file was not copied. The plugin reads month files only.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/rednotebook-backup-import/HEAD/docs/reports.png" alt="The markup report with list, table and image path lines" width="720">
 
 Existing notes stay. A note path that exists is skipped and not changed. A second import of the same backup creates no notes. If two month files in the ZIP have the same month, for example `2026-01.txt` and `data/2026-01.txt`, the plugin reports a conflict and skips the dates of that month.
 
-The plugin copies each month file into `RedNotebook source/` inside the import folder, so you keep the original YAML next to the notes. A copy that exists is kept. You can turn this off in the import window or in the settings.
+The plugin copies each month file into `RedNotebook source/` inside the import folder, so you keep the original YAML next to the notes. A copy that exists is kept.
 
 ### Category mapping rules (Pro)
 
@@ -73,6 +73,8 @@ For manual installation, copy `main.js`, `manifest.json` and `styles.css` from a
 
 ## Settings
 
+After a minor or major update, this plugin opens one What's new tab in the background. The tab and settings card suggest other NoteMods plugins and Zovo Chat and link to notemods.com for feedback ([privacy](https://notemods.com/privacy/)). The tab sends no data. Turn the tab off in Settings.
+
 The settings tab has the default import folder, the switch for the month source copies and the GitHub Sponsors controls. The import window can change the folder and the source copy switch for one import. A completed import saves the folder for the next run. Saved category rules and the last merge section name are in the plugin's local settings file.
 
 ## FAQ
@@ -83,7 +85,7 @@ A ZIP of up to 20 MiB with month files named `YYYY-MM.txt`, at the root or in a 
 
 ### Why was my backup rejected?
 
-The error gives the problem and, for a month file error, its file name. Common causes are an invalid date, a Python object tag, a YAML alias, a duplicate day key or an unsafe path in the ZIP. The legacy `!!python/unicode` text tag is accepted. The plugin rejects the whole backup in these error cases, so the vault does not get a partial import of bad data.
+The error gives the problem and, for a month file error, its file name. Common causes are an invalid date, a Python object tag, a YAML alias, a duplicate day key or an unsafe path in the ZIP. The legacy `!!python/unicode` text tag is accepted.
 
 ### What happens if a write fails or I cancel?
 
@@ -109,4 +111,4 @@ After a successful check, Pro can work offline for up to 14 days. Sign out or a 
 
 ## Support
 
-Report a problem in the repository issues with the Obsidian version and the error text. Attach a synthetic month file that shows the problem. Remove personal journal text before you share a file. Keep the original backup until you have checked the notes. Publisher: theluckystrike, notemods.com.
+Report a problem in the repository issues with the Obsidian version and the error text. Attach a synthetic month file that shows the problem. Remove personal journal text before you share a file. Publisher: theluckystrike, notemods.com.
