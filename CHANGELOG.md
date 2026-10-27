@@ -1,5 +1,11 @@
 # rednotebook-backup-import
 
+## 1.1.1
+
+### Patch Changes
+
+- c5e36b5: Save rules, Merge selected dates and the date toggles now show how to get Pro, with a Sponsor on GitHub button, when you select them. Nothing turns on or saves until Pro is on.
+
 ## 1.1.0
 
 ### Minor Changes

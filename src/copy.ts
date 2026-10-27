@@ -7,6 +7,6 @@ export const TEXT = {
   "rules": "Category mapping rules (Pro)",
   "saveRules": "Save category mapping rules (Pro)",
   "merge": "Merge into a daily-note section (Pro)",
-  "needRules": "Saved category mapping rules need Pro. Sign in from the plugin settings.",
+  "needRules": "Saved category mapping rules need Pro.",
   "needMerge": "Merging into existing notes needs Pro."
 };

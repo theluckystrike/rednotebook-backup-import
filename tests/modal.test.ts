@@ -15,13 +15,14 @@ beforeEach(() => {
 afterEach(() => { resetPro(); vi.restoreAllMocks(); });
 
 describe('import window', () => {
-	it('shows the preview counts and disables Pro controls without Pro', async () => {
+	it('shows the preview counts and keeps Save rules enabled without Pro', async () => {
 		const app = App.createConfigured__({ files: { 'RedNotebook/2026-01-01.md': 'Keep' } });
 		const plugin = new RednotebookBackupImportPlugin(app as never, manifest as never);
 		const modal = plugin.openImport(fixture());
 		await expect.poll(() => modal.contentEl.querySelector('.rednotebook-counts')?.textContent).toBe('2 dates · 1 existing notes · 0 conflicts · 1 markup reports');
 		const save = Array.from(modal.contentEl.querySelectorAll('button')).find((b) => b.textContent === 'Save rules');
-		expect(save?.disabled).toBe(true);
+		// Free users can select Save rules: the select shows the Pro notice (tests/pro-notice.test.ts).
+		expect(save?.disabled).toBe(false);
 		modal.close();
 	});
 	it('enables the rule field and save button with Pro', async () => {

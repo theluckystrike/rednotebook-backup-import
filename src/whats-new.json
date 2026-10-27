@@ -1,9 +1,9 @@
 {
 	"id": "rednotebook-backup-import",
 	"name": "RedNotebook Backup Import",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"changes": [
-		"New Send feedback command. It opens a page where you can report a problem or suggest an idea."
+		"Save rules, Merge selected dates and the date toggles now show how to get Pro, with a Sponsor on GitHub button, when you select them. Nothing turns on or saves until Pro is on."
 	],
 	"tip": "You can import the same backup again. Notes that exist are skipped, so no duplicates are made.",
 	"thanks": "Hi, I am Michael, a solo developer in Poland. RedNotebook Backup Import is one of over 100 small plugins that I make. Thank you for moving your notes into Obsidian with it.",

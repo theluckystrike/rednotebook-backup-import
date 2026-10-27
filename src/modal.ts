@@ -3,7 +3,7 @@ import { Modal, Notice, Setting } from 'obsidian';
 import { MAX_ZIP, type Backup } from './archive';
 import type { ImportPlan } from './importer';
 import type { Rule } from './model';
-import { isPro } from './pro';
+import { isPro, proNotice } from './pro';
 import type RednotebookBackupImportPlugin from './main';
 
 export class ImportModal extends Modal {
@@ -137,15 +137,26 @@ export class ImportModal extends Modal {
 				this.rules = [...this.rules.filter((r) => r.category !== name), { category: name, property: value.trim() }];
 			}));
 		}
-		new Setting(rules).setName(TEXT.saveRules).addButton((b) => b.setButtonText('Save rules').setDisabled(!pro || this.busy).onClick(() => void this.run(async () => {
-			if (await this.plugin.saveRules(this.rules)) { this.rules = this.plugin.settings.rules.map((r) => ({ ...r })); new Notice('Category mapping rules saved.'); }
-		})));
+		new Setting(rules).setName(TEXT.saveRules).addButton((b) => b.setButtonText('Save rules').setDisabled(this.busy).onClick(() => {
+			// A free user's select shows the Pro notice. No rule is saved.
+			if (!isPro()) { proNotice(TEXT.needRules); return; }
+			void this.run(async () => {
+				if (await this.plugin.saveRules(this.rules)) { this.rules = this.plugin.settings.rules.map((r) => ({ ...r })); new Notice('Category mapping rules saved.'); }
+			});
+		}));
 		const merge = el.createEl('details', { cls: 'rednotebook-merge' });
 		merge.createEl('summary', { text: TEXT.merge });
-		new Setting(merge).setName('Merge selected dates').setDesc('Add the converted day to the end of an existing note under this heading. A note that has the heading is not changed.').addToggle((t) => t.setValue(this.merge).setDisabled(!pro).onChange((value) => { this.merge = isPro() && value; }));
+		new Setting(merge).setName('Merge selected dates').setDesc('Add the converted day to the end of an existing note under this heading. A note that has the heading is not changed.').addToggle((t) => t.setValue(this.merge).onChange((value) => {
+			// A free user's select shows the Pro notice and sets the toggle back to off. setValue(false) calls this
+			// callback again with false; the !isPro() check returns before any change.
+			if (!isPro()) { if (value) { proNotice(TEXT.needMerge); t.setValue(false); } return; }
+			this.merge = value;
+		}));
 		new Setting(merge).setName('Section name').addText((t) => t.setValue(this.section).setDisabled(!pro).onChange((value) => { this.section = value.trim(); }));
 		for (const item of this.plan?.days.filter((d) => d.exists).slice(0, 100) ?? []) {
-			new Setting(merge).setName(item.day.date).setDesc(item.path).addToggle((t) => t.setValue(this.mergeDates.has(item.day.date)).setDisabled(!pro).onChange((value) => {
+			new Setting(merge).setName(item.day.date).setDesc(item.path).addToggle((t) => t.setValue(this.mergeDates.has(item.day.date)).onChange((value) => {
+				// A free user can turn a date off (a lapsed sponsor's choice), not on. The re-entrant call with false only deletes.
+				if (value && !isPro()) { proNotice(TEXT.needMerge); t.setValue(false); return; }
 				if (value) this.mergeDates.add(item.day.date); else this.mergeDates.delete(item.day.date);
 			}));
 		}

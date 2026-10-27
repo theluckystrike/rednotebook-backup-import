@@ -1,12 +1,12 @@
 import { TEXT } from './copy';
-import { Notice, Plugin } from 'obsidian';
+import { Plugin } from 'obsidian';
 import type { SponsorsManager } from './license/index';
 import { createGitHubSponsors } from './license/github-obsidian';
 import { readBackup, type Backup } from './archive';
 import { prepareImport, writeImport, type ImportPlan, type ImportResult, type WriteOptions } from './importer';
 import { ImportModal } from './modal';
 import { validateRules, type Rule } from './model';
-import { SPONSORS, bindPro, isPro, resetPro } from './pro';
+import { SPONSORS, bindPro, isPro, resetPro, proNotice } from './pro';
 import { RednotebookBackupImportSettingTab, normalizeSettings, type RednotebookBackupImportSettings } from './settings';
 import { setupHello } from './hello/index';
 import WHATS_NEW from './whats-new.json';
@@ -67,7 +67,7 @@ export default class RednotebookBackupImportPlugin extends Plugin {
 		try { return await writeImport(this.app.vault, plan, full); } finally { this.importing = false; }
 	}
 	async saveRules(rules: Rule[]): Promise<boolean> {
-		if (!isPro()) { new Notice(TEXT.needRules); return false; }
+		if (!isPro()) { proNotice(TEXT.needRules); return false; }
 		this.settings.rules = validateRules(rules);
 		await this.saveSettings();
 		return true;
