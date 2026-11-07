@@ -11,7 +11,7 @@ import manifest from '../manifest.json';
 
 // A free user can select the Pro controls of the import window. The select shows the shared Pro notice with the
 // "Sponsor on GitHub" button. No rule is saved, and each merge toggle shows off again.
-const PITCH = 'Sponsor on GitHub, then sign in from the plugin settings.';
+const PITCH = 'One payment turns on Pro in every NoteMods plugin. Sponsor on GitHub, then sign in from the plugin settings.';
 const RULES = 'Saved category mapping rules need Pro.';
 const MERGE = 'Merging into existing notes needs Pro.';
 const fixture = () => readBackup(new Uint8Array(readFileSync('tests/fixtures/rednotebook-two-days.zip')));
